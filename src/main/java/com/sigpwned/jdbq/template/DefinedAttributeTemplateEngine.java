@@ -1,3 +1,22 @@
+/*-
+ * =================================LICENSE_START==================================
+ * jdbq
+ * ====================================SECTION=====================================
+ * Copyright (C) 2022 Andy Boothe
+ * ====================================SECTION=====================================
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ * 
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ * 
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ * ==================================LICENSE_END===================================
+ */
 /*
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -11,23 +30,17 @@
  */
 package com.sigpwned.jdbq.template;
 
+import static com.sigpwned.jdbq.internal.lexer.DefineStatementLexer.COMMENT;
+import static com.sigpwned.jdbq.internal.lexer.DefineStatementLexer.DEFINE;
+import static com.sigpwned.jdbq.internal.lexer.DefineStatementLexer.DOUBLE_QUOTED_TEXT;
+import static com.sigpwned.jdbq.internal.lexer.DefineStatementLexer.ESCAPED_TEXT;
+import static com.sigpwned.jdbq.internal.lexer.DefineStatementLexer.LITERAL;
+import static com.sigpwned.jdbq.internal.lexer.DefineStatementLexer.QUOTED_TEXT;
 import static org.antlr.v4.runtime.Recognizer.EOF;
-import static org.jdbi.v3.core.internal.lexer.DefineStatementLexer.COMMENT;
-import static org.jdbi.v3.core.internal.lexer.DefineStatementLexer.DEFINE;
-import static org.jdbi.v3.core.internal.lexer.DefineStatementLexer.DOUBLE_QUOTED_TEXT;
-import static org.jdbi.v3.core.internal.lexer.DefineStatementLexer.ESCAPED_TEXT;
-import static org.jdbi.v3.core.internal.lexer.DefineStatementLexer.LITERAL;
-import static org.jdbi.v3.core.internal.lexer.DefineStatementLexer.QUOTED_TEXT;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-import java.util.function.BiConsumer;
-import java.util.function.Function;
+import org.antlr.v4.runtime.CharStreams;
 import org.antlr.v4.runtime.Token;
-import org.jdbi.v3.core.internal.lexer.DefineStatementLexer;
-import org.jdbi.v3.core.statement.internal.ErrorListener;
-import com.google.common.io.CharStreams;
-import com.sigpwned.jdbq.config.ConfigRegistry;
+import com.sigpwned.jdbq.internal.antlr4.ErrorListener;
+import com.sigpwned.jdbq.internal.lexer.DefineStatementLexer;
 import com.sigpwned.jdbq.statement.StatementContext;
 import com.sigpwned.jdbq.statement.exception.UnableToCreateStatementException;
 
@@ -38,17 +51,8 @@ import com.sigpwned.jdbq.statement.exception.UnableToCreateStatementException;
  */
 public class DefinedAttributeTemplateEngine implements TemplateEngine {
   @Override
-  public Optional<Function<StatementContext, String>> parse(String template,
-      ConfigRegistry config) {
+  public String render(String template, StatementContext ctx) {
     StringBuilder buf = new StringBuilder();
-    List<BiConsumer<StatementContext, StringBuilder>> preparation = new ArrayList<>();
-    Runnable pushBuf = () -> { // NOPMD
-      if (buf.length() > 0) {
-        String bit = buf.toString();
-        buf.setLength(0);
-        preparation.add((ctx, b) -> b.append(bit));
-      }
-    };
     DefineStatementLexer lexer = new DefineStatementLexer(CharStreams.fromString(template));
     lexer.addErrorListener(new ErrorListener());
     Token t = lexer.nextToken();
@@ -61,17 +65,14 @@ public class DefinedAttributeTemplateEngine implements TemplateEngine {
           buf.append(t.getText());
           break;
         case DEFINE:
-          pushBuf.run();
           String text = t.getText();
           String key = text.substring(1, text.length() - 1);
-          preparation.add((ctx, b) -> {
-            Object value = ctx.getAttribute(key);
-            if (value == null) {
-              throw new UnableToCreateStatementException(
-                  "Undefined attribute for token '" + text + "'", ctx);
-            }
-            b.append(value);
-          });
+          Object value = ctx.getAttributeBinding().getAttribute(key);
+          if (value == null) {
+            throw new UnableToCreateStatementException(
+                "Undefined attribute for token '" + text + "'", ctx);
+          }
+          buf.append(value);
           break;
         case ESCAPED_TEXT:
           buf.append(t.getText().substring(1));
@@ -81,22 +82,6 @@ public class DefinedAttributeTemplateEngine implements TemplateEngine {
       }
       t = lexer.nextToken();
     }
-    pushBuf.run();
-    return Optional.of(ctx -> {
-      try {
-        StringBuilder result = new StringBuilder();
-        preparation.forEach(a -> a.accept(ctx, result));
-        return result.toString();
-      } catch (RuntimeException e) {
-        throw new UnableToCreateStatementException(
-            "Error rendering SQL template: '" + template + "'", e, ctx);
-      }
-    });
-  }
-
-  @Override
-  public String render(String template, StatementContext ctx) {
-    // TODO Auto-generated method stub
-    return null;
+    return buf.toString();
   }
 }
