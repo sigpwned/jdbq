@@ -40,7 +40,6 @@ import com.google.cloud.bigquery.QueryParameterValue;
 import com.sigpwned.jdbq.Handle;
 import com.sigpwned.jdbq.argument.Arguments;
 import com.sigpwned.jdbq.config.JdbqConfig;
-import com.sigpwned.jdbq.mapper.NoSuchMapperException;
 import com.sigpwned.jdbq.parser.ParsedSql;
 import com.sigpwned.jdbq.result.FieldValueListsResultSet;
 import com.sigpwned.jdbq.result.ResultSet;
@@ -298,9 +297,8 @@ public abstract class SqlStatement<This extends SqlStatement<This>> extends Base
 
   @SuppressWarnings("unchecked")
   private This bindByType(int position, Type type, Object value) {
-    QueryParameterValue argumentValue = getConfig(Arguments.class).findArgumentFactoryFor(type)
-        .orElseThrow(() -> new NoSuchMapperException("No mapper for type " + type))
-        .map(type, value, getHandle().getConfig());
+    QueryParameterValue argumentValue =
+        getConfig(Arguments.class).map(type, value, getHandle().getConfig());
 
     getArgumentBinding().addPositional(position, argumentValue);
 
@@ -309,9 +307,8 @@ public abstract class SqlStatement<This extends SqlStatement<This>> extends Base
 
   @SuppressWarnings("unchecked")
   private This bindByType(String name, Type type, Object value) {
-    QueryParameterValue argumentValue = getConfig(Arguments.class).findArgumentFactoryFor(type)
-        .orElseThrow(() -> new NoSuchMapperException("No mapper for type " + type))
-        .map(type, value, getHandle().getConfig());
+    QueryParameterValue argumentValue =
+        getConfig(Arguments.class).map(type, value, getHandle().getConfig());
 
     getArgumentBinding().addNamed(name, argumentValue);
 

@@ -20,35 +20,69 @@
 package com.sigpwned.jdbq.argument;
 
 import java.lang.reflect.Type;
-import java.util.Optional;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentMap;
+import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
+import com.google.cloud.bigquery.QueryParameterValue;
+import com.sigpwned.jdbq.argument.factory.BoxedArgumentFactory;
+import com.sigpwned.jdbq.argument.factory.CharSequenceArgumentFactory;
+import com.sigpwned.jdbq.argument.factory.EnumArgumentFactory;
+import com.sigpwned.jdbq.argument.factory.EssentialsArgumentFactory;
+import com.sigpwned.jdbq.argument.factory.InternetArgumentFactory;
+import com.sigpwned.jdbq.argument.factory.JavaTimeArgumentFactory;
+import com.sigpwned.jdbq.argument.factory.JavaTimeZoneIdArgumentFactory;
+import com.sigpwned.jdbq.argument.factory.OptionalArgumentFactory;
+import com.sigpwned.jdbq.argument.factory.PrimitivesArgumentFactory;
+import com.sigpwned.jdbq.config.ConfigRegistry;
 import com.sigpwned.jdbq.config.JdbqConfig;
+import com.sigpwned.jdbq.statement.exception.UnableToCreateStatementException;
 
 public class Arguments implements JdbqConfig<Arguments> {
-  private final ConcurrentMap<Type, ArgumentFactory<?>> argumentFactories;
+  private final List<ArgumentFactory> argumentFactories;
 
   public Arguments() {
-    this.argumentFactories = new ConcurrentHashMap<>();
+    this.argumentFactories = new CopyOnWriteArrayList<>();
+
+    // register built-in factories, priority of factories is by reverse registration order
+    addArgumentFactory(new PrimitivesArgumentFactory());
+    addArgumentFactory(new BoxedArgumentFactory());
+    addArgumentFactory(new InternetArgumentFactory());
+    addArgumentFactory(new JavaTimeArgumentFactory());
+    addArgumentFactory(new CharSequenceArgumentFactory()); // before EssentialsArgumentFactory
+    addArgumentFactory(new EssentialsArgumentFactory());
+    addArgumentFactory(new JavaTimeZoneIdArgumentFactory());
+    addArgumentFactory(new EnumArgumentFactory());
+    addArgumentFactory(new OptionalArgumentFactory());
   }
 
   private Arguments(Arguments that) {
-    this.argumentFactories = new ConcurrentHashMap<>(that.argumentFactories);
+    this.argumentFactories = new CopyOnWriteArrayList<>(that.argumentFactories);
   }
 
-  public <T> void addArgumentFactory(Type type, ArgumentFactory<T> argumentFactory) {
-    getArgumentFactories().put(type, argumentFactory);
+  public void addArgumentFactory(ArgumentFactory argumentFactory) {
+    getArgumentFactories().add(argumentFactory);
   }
 
-  @SuppressWarnings({"unchecked", "rawtypes"})
-  public <T> Optional<ArgumentFactory<T>> findArgumentFactoryFor(Type type) {
-    return Optional.ofNullable((ArgumentFactory) getArgumentFactories().get(type));
+  public QueryParameterValue map(Type type, Object value, ConfigRegistry config) {
+    QueryParameterValue result;
+    if (value == null) {
+      result = null;
+    } else {
+      result = null;
+      for (ArgumentFactory argumentFactory : getArgumentFactories()) {
+        result = argumentFactory.map(type, value, config).orElse(null);
+        if (result != null)
+          break;
+      }
+      if (result == null)
+        throw new UnableToCreateStatementException("Failed to map argument value " + value);
+    }
+    return result;
   }
 
   /**
    * @return the argumentFactories
    */
-  private ConcurrentMap<Type, ArgumentFactory<?>> getArgumentFactories() {
+  private List<ArgumentFactory> getArgumentFactories() {
     return argumentFactories;
   }
 

@@ -105,7 +105,7 @@ public interface ResultBearing {
    */
   default ResultIterable<?> mapTo(Type type) {
     return scanResultSet((supplier, ctx) -> {
-      RowMapper<?> mapper = ctx.getConfig(RowMappers.class).findRowMapper(type)
+      RowMapper<?> mapper = ctx.getConfig(RowMappers.class).findFor(type)
           .orElseThrow(() -> new NoSuchMapperException("No mapper registered for type " + type));
       return ResultIterable.of(supplier, mapper, ctx);
     });

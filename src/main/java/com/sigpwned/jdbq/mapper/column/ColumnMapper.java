@@ -22,6 +22,7 @@ package com.sigpwned.jdbq.mapper.column;
 import java.sql.SQLException;
 import com.google.cloud.bigquery.FieldValue;
 import com.google.cloud.bigquery.FieldValueList;
+import com.sigpwned.jdbq.config.ConfigRegistry;
 import com.sigpwned.jdbq.statement.StatementContext;
 
 /**
@@ -69,4 +70,15 @@ public interface ColumnMapper<T> {
   }
 
   T map(FieldValue value, StatementContext ctx);
+
+  /**
+   * Allows for initialization of the column mapper instance within a ConfigRegistry scope. This
+   * method is called once when the column mapper is first used from a ConfigRegistry.
+   * <p>
+   * Note that handles, statements, sql objects etc. all create copies of the registry, and this
+   * method will be called for every copy
+   *
+   * @param registry A reference to the {@link ConfigRegistry} that this instance belongs to.
+   */
+  default void init(ConfigRegistry registry) {}
 }
