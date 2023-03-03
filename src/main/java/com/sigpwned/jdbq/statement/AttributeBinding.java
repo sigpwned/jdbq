@@ -19,6 +19,7 @@
  */
 package com.sigpwned.jdbq.statement;
 
+import static java.util.Collections.unmodifiableMap;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -56,8 +57,8 @@ public class AttributeBinding {
    *
    * @return the defined attributes.
    */
-  Map<String, Object> getAttributes() {
-    return attributes;
+  public Map<String, Object> getAttributes() {
+    return unmodifiableMap(attributes);
   }
 
   /**

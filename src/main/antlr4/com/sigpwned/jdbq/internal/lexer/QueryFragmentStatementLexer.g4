@@ -11,16 +11,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-lexer grammar ColonStatementLexer;
+lexer grammar QueryFragmentStatementLexer;
 
 fragment QUOTE: '\'';
 fragment ESCAPE: '\\';
 fragment ESCAPE_QUOTE: ESCAPE QUOTE;
 fragment DOUBLE_QUOTE: '"';
+fragment LT: '<' ;
+fragment GT: '>' ;
 fragment COLON: {_input.LA(2) != ':'}? ':';
 fragment DOUBLE_COLON: {_input.LA(2) == ':'}? '::';
-fragment QUESTION: {_input.LA(2) != '?'}? '?';
-fragment DOUBLE_QUESTION: {_input.LA(2) == '?'}? '??';
 fragment NAME: JAVA_LETTER | [0-9] | '.' | '?.';
 
 /* Lovingly lifted from https://github.com/antlr/grammars-v4/blob/master/java/JavaLexer.g4 */
@@ -31,7 +31,7 @@ QUOTED_TEXT: QUOTE (ESCAPE_QUOTE | ~'\'')* QUOTE;
 DOUBLE_QUOTED_TEXT: DOUBLE_QUOTE (~'"')+ DOUBLE_QUOTE;
 ESCAPED_TEXT : ESCAPE . ;
 
+DEFINE: LT (NAME)+ GT;
 NAMED_PARAM: COLON (NAME)+;
-POSITIONAL_PARAM: QUESTION;
 
-LITERAL: DOUBLE_COLON | DOUBLE_QUESTION | .;
+LITERAL: DOUBLE_COLON | .;

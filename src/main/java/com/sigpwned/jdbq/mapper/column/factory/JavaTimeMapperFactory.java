@@ -1,3 +1,22 @@
+/*-
+ * =================================LICENSE_START==================================
+ * jdbq
+ * ====================================SECTION=====================================
+ * Copyright (C) 2022 - 2023 Andy Boothe
+ * ====================================SECTION=====================================
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ * 
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ * 
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ * ==================================LICENSE_END===================================
+ */
 /*
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -17,6 +36,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.OffsetDateTime;
+import java.time.ZoneId;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
@@ -41,7 +61,7 @@ import com.sigpwned.jdbq.statement.StatementContext;
  * <li>{@link ZonedDateTime}</li>
  * </ul>
  */
-class JavaTimeMapperFactory implements ColumnMapperFactory {
+public class JavaTimeMapperFactory implements ColumnMapperFactory {
   private static final DateTimeFormatter TIME_FORMATTER = JavaTimeMapping.TIME_FORMATTER;
 
   private static final DateTimeFormatter DATE_FORMATTER = JavaTimeMapping.DATE_FORMATTER;
@@ -50,13 +70,14 @@ class JavaTimeMapperFactory implements ColumnMapperFactory {
 
   private final IdentityHashMap<Class<?>, ColumnMapper<?>> mappers = new IdentityHashMap<>();
 
-  JavaTimeMapperFactory() {
+  public JavaTimeMapperFactory() {
     mappers.put(Instant.class, JavaTimeMapperFactory::getInstant);
     mappers.put(LocalDate.class, JavaTimeMapperFactory::getLocalDate);
     mappers.put(LocalTime.class, JavaTimeMapperFactory::getLocalTime);
     mappers.put(LocalDateTime.class, JavaTimeMapperFactory::getLocalDateTime);
     mappers.put(OffsetDateTime.class, JavaTimeMapperFactory::getOffsetDateTime);
     mappers.put(ZonedDateTime.class, JavaTimeMapperFactory::getZonedDateTime);
+    mappers.put(ZoneId.class, JavaTimeMapperFactory::getZoneId);
   }
 
   @Override
@@ -90,5 +111,9 @@ class JavaTimeMapperFactory implements ColumnMapperFactory {
   private static LocalTime getLocalTime(FieldValue v, StatementContext ctx) {
     // TODO Is this right?
     return v.isNull() ? null : LocalTime.parse(v.getStringValue(), TIME_FORMATTER);
+  }
+
+  private static ZoneId getZoneId(FieldValue v, StatementContext ctx) {
+    return v.isNull() ? null : ZoneId.of(v.getStringValue());
   }
 }

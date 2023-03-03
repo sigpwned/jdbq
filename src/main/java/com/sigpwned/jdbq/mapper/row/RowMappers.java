@@ -27,6 +27,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
 import com.sigpwned.jdbq.config.ConfigRegistry;
 import com.sigpwned.jdbq.config.JdbqConfig;
 import com.sigpwned.jdbq.generic.GenericType;
+import com.sigpwned.jdbq.generic.GenericTypes;
 import com.sigpwned.jdbq.internal.Optionals;
 import com.sigpwned.jdbq.statement.Query;
 
@@ -65,7 +66,10 @@ public class RowMappers implements JdbqConfig<RowMappers> {
    * @throws UnsupportedOperationException if the RowMapper is not a concretely parameterized type
    */
   public RowMappers register(RowMapper<?> mapper) {
-    return this.register(mapper);
+    Type type = GenericTypes.findGenericParameter(mapper.getClass(), RowMapper.class)
+        .orElseThrow(() -> new UnsupportedOperationException(
+            "Must use a concretely typed RowMapper here"));
+    return register(type, mapper);
   }
 
   /**
@@ -77,7 +81,7 @@ public class RowMappers implements JdbqConfig<RowMappers> {
    * @return this
    */
   public <T> RowMappers register(GenericType<T> type, RowMapper<T> mapper) {
-    return this.register(RowMapperFactory.of(type.getType(), mapper));
+    return register(RowMapperFactory.of(type.getType(), mapper));
   }
 
   /**
@@ -88,7 +92,7 @@ public class RowMappers implements JdbqConfig<RowMappers> {
    * @return this
    */
   public RowMappers register(Type type, RowMapper<?> mapper) {
-    return this.register(RowMapperFactory.of(type, mapper));
+    return register(RowMapperFactory.of(type, mapper));
   }
 
   /**

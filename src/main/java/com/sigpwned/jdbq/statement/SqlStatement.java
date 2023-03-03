@@ -20,16 +20,12 @@
 package com.sigpwned.jdbq.statement;
 
 import static java.util.Objects.requireNonNull;
-import java.io.InputStream;
-import java.io.Reader;
 import java.lang.reflect.Type;
 import java.net.URI;
 import java.net.URL;
-import java.sql.Blob;
-import java.sql.Clob;
-import java.sql.Date;
-import java.sql.Time;
-import java.sql.Timestamp;
+import java.time.Instant;
+import java.time.LocalDate;
+import java.time.LocalTime;
 import java.util.Collection;
 import java.util.Map;
 import java.util.UUID;
@@ -45,6 +41,7 @@ import com.sigpwned.jdbq.result.FieldValueListsResultSet;
 import com.sigpwned.jdbq.result.ResultSet;
 import com.sigpwned.jdbq.statement.exception.UnableToCreateStatementException;
 import com.sigpwned.jdbq.statement.exception.UnableToExecuteStatementException;
+import io.leangen.geantyref.TypeFactory;
 
 public abstract class SqlStatement<This extends SqlStatement<This>> extends BaseStatement<This> {
   private final String sql;
@@ -64,255 +61,235 @@ public abstract class SqlStatement<This extends SqlStatement<This>> extends Base
   }
 
   public This bind(int position, byte value) {
-    return bind(position, byte.class, value);
+    return bindByType(position, byte.class, value);
   }
 
   public This bind(String name, byte value) {
-    return bind(name, byte.class, value);
+    return bindByType(name, byte.class, value);
   }
 
   public This bind(int position, Byte value) {
-    return bind(position, Byte.class, value);
+    return bindByType(position, Byte.class, value);
   }
 
   public This bind(String name, Byte value) {
-    return bind(name, Byte.class, value);
+    return bindByType(name, Byte.class, value);
   }
 
   public This bind(int position, short value) {
-    return bind(position, short.class, value);
+    return bindByType(position, short.class, value);
   }
 
   public This bind(String name, short value) {
-    return bind(name, short.class, value);
+    return bindByType(name, short.class, value);
   }
 
   public This bind(int position, Short value) {
-    return bind(position, Short.class, value);
+    return bindByType(position, Short.class, value);
   }
 
   public This bind(String name, Short value) {
-    return bind(name, Short.class, value);
+    return bindByType(name, Short.class, value);
   }
 
   public This bind(int position, int value) {
-    return bind(position, int.class, value);
+    return bindByType(position, int.class, value);
   }
 
   public This bind(String name, int value) {
-    return bind(name, int.class, value);
+    return bindByType(name, int.class, value);
   }
 
   public This bind(int position, Integer value) {
-    return bind(position, Integer.class, value);
+    return bindByType(position, Integer.class, value);
   }
 
   public This bind(String name, Integer value) {
-    return bind(name, Integer.class, value);
+    return bindByType(name, Integer.class, value);
   }
 
   public This bind(int position, long value) {
-    return bind(position, long.class, value);
+    return bindByType(position, long.class, value);
   }
 
   public This bind(String name, long value) {
-    return bind(name, long.class, value);
+    return bindByType(name, long.class, value);
   }
 
   public This bind(int position, Long value) {
-    return bind(position, Long.class, value);
+    return bindByType(position, Long.class, value);
   }
 
   public This bind(String name, Long value) {
-    return bind(name, Long.class, value);
+    return bindByType(name, Long.class, value);
   }
 
   public This bind(int position, float value) {
-    return bind(position, float.class, value);
+    return bindByType(position, float.class, value);
   }
 
   public This bind(String name, float value) {
-    return bind(name, float.class, value);
+    return bindByType(name, float.class, value);
   }
 
   public This bind(int position, Float value) {
-    return bind(position, Float.class, value);
+    return bindByType(position, Float.class, value);
   }
 
   public This bind(String name, Float value) {
-    return bind(name, Float.class, value);
+    return bindByType(name, Float.class, value);
   }
 
   public This bind(int position, double value) {
-    return bind(position, double.class, value);
+    return bindByType(position, double.class, value);
   }
 
   public This bind(String name, double value) {
-    return bind(name, double.class, value);
+    return bindByType(name, double.class, value);
   }
 
   public This bind(int position, Double value) {
-    return bind(position, Double.class, value);
+    return bindByType(position, Double.class, value);
   }
 
   public This bind(String name, Double value) {
-    return bind(name, Double.class, value);
+    return bindByType(name, Double.class, value);
   }
 
   public This bind(int position, boolean value) {
-    return bind(position, boolean.class, value);
+    return bindByType(position, boolean.class, value);
   }
 
   public This bind(String name, boolean value) {
-    return bind(name, boolean.class, value);
+    return bindByType(name, boolean.class, value);
   }
 
   public This bind(int position, Boolean value) {
-    return bind(position, Boolean.class, value);
+    return bindByType(position, Boolean.class, value);
   }
 
   public This bind(String name, Boolean value) {
-    return bind(name, Boolean.class, value);
+    return bindByType(name, Boolean.class, value);
   }
 
   public This bind(int position, char value) {
-    return bind(position, char.class, value);
+    return bindByType(position, char.class, value);
   }
 
   public This bind(String name, char value) {
-    return bind(name, char.class, value);
+    return bindByType(name, char.class, value);
   }
 
   public This bind(int position, Character value) {
-    return bind(position, Character.class, value);
+    return bindByType(position, Character.class, value);
   }
 
   public This bind(String name, Character value) {
-    return bind(name, Character.class, value);
+    return bindByType(name, Character.class, value);
   }
 
   public This bind(int position, String value) {
-    return bind(position, String.class, value);
+    return bindByType(position, String.class, value);
   }
 
   public This bind(String name, String value) {
-    return bind(name, String.class, value);
+    return bindByType(name, String.class, value);
   }
 
-  public This bind(int position, Date value) {
-    return bind(position, Date.class, value);
+  public This bind(int position, LocalDate value) {
+    return bindByType(position, LocalDate.class, value);
   }
 
-  public This bind(String name, Date value) {
-    return bind(name, Date.class, value);
+  public This bind(String name, LocalDate value) {
+    return bindByType(name, LocalDate.class, value);
   }
 
-  public This bind(int position, Time value) {
-    return bind(position, Time.class, value);
+  public This bind(int position, LocalTime value) {
+    return bindByType(position, LocalTime.class, value);
   }
 
-  public This bind(String name, Time value) {
-    return bind(name, Time.class, value);
+  public This bind(String name, LocalTime value) {
+    return bindByType(name, LocalTime.class, value);
   }
 
-  public This bind(int position, Timestamp value) {
-    return bind(position, Timestamp.class, value);
+  public This bind(int position, Instant value) {
+    return bindByType(position, Instant.class, value);
   }
 
-  public This bind(String name, Timestamp value) {
-    return bind(name, Timestamp.class, value);
+  public This bind(String name, Instant value) {
+    return bindByType(name, Instant.class, value);
   }
 
   public This bind(int position, URI value) {
-    return bind(position, URI.class, value);
+    return bindByType(position, URI.class, value);
   }
 
   public This bind(String name, URI value) {
-    return bind(name, URI.class, value);
+    return bindByType(name, URI.class, value);
   }
 
   public This bind(int position, URL value) {
-    return bind(position, URL.class, value);
+    return bindByType(position, URL.class, value);
   }
 
   public This bind(String name, URL value) {
-    return bind(name, URL.class, value);
+    return bindByType(name, URL.class, value);
   }
 
   public This bind(int position, UUID value) {
-    return bind(position, UUID.class, value);
+    return bindByType(position, UUID.class, value);
   }
 
   public This bind(String name, UUID value) {
-    return bind(name, UUID.class, value);
-  }
-
-  public This bind(int position, Blob value) {
-    return bind(position, Blob.class, value);
-  }
-
-  public This bind(String name, Blob value) {
-    return bind(name, Blob.class, value);
-  }
-
-  public This bind(int position, Clob value) {
-    return bind(position, Clob.class, value);
-  }
-
-  public This bind(String name, Clob value) {
-    return bind(name, Clob.class, value);
+    return bindByType(name, UUID.class, value);
   }
 
   public This bind(int position, byte[] value) {
-    return bind(position, byte[].class, value);
+    return bindByType(position, byte[].class, value);
   }
 
   public This bind(String name, byte[] value) {
-    return bind(name, byte[].class, value);
-  }
-
-  public This bind(int position, InputStream value) {
-    return bind(position, InputStream.class, value);
-  }
-
-  public This bind(String name, InputStream value) {
-    return bind(name, InputStream.class, value);
-  }
-
-  public This bind(int position, Reader value) {
-    return bind(position, Reader.class, value);
-  }
-
-  public This bind(String name, Reader value) {
-    return bind(name, Reader.class, value);
-  }
-
-  private This bind(int position, Class<?> type, Object value) {
-    return bindByType(position, type, value);
-  }
-
-  private This bind(String name, Class<?> type, Object value) {
-    return bindByType(name, type, value);
+    return bindByType(name, byte[].class, value);
   }
 
   @SuppressWarnings("unchecked")
-  private This bindByType(int position, Type type, Object value) {
-    QueryParameterValue argumentValue =
-        getConfig(Arguments.class).map(type, value, getHandle().getConfig());
-
-    getArgumentBinding().addPositional(position, argumentValue);
+  public This bindByType(int position, Type type, Object value) {
+    getArgumentBinding().addPositional(position, type, value);
 
     return (This) this;
   }
 
   @SuppressWarnings("unchecked")
-  private This bindByType(String name, Type type, Object value) {
-    QueryParameterValue argumentValue =
-        getConfig(Arguments.class).map(type, value, getHandle().getConfig());
-
-    getArgumentBinding().addNamed(name, argumentValue);
-
+  public This bindByType(String name, Type type, Object value) {
+    getArgumentBinding().addNamed(name, type, value);
     return (This) this;
+  }
+
+  @SuppressWarnings("unchecked")
+  public <T> This bindArray(int position, T... array) {
+    return bindArray(position, array.getClass().getComponentType(), array);
+  }
+
+  @SuppressWarnings("unchecked")
+  public <T> This bindArray(String name, T... array) {
+    return bindArray(name, array.getClass().getComponentType(), array);
+  }
+
+  public This bindArray(int position, Type elementType, Object... array) {
+    return bindByType(position, TypeFactory.arrayOf(elementType), array);
+  }
+
+  public This bindArray(String name, Type elementType, Object... array) {
+    return bindByType(name, TypeFactory.arrayOf(elementType), array);
+  }
+
+  public This bindArray(int position, Type elementType, Iterable<?> iterable) {
+    return bindByType(position, TypeFactory.parameterizedClass(Iterable.class, elementType),
+        iterable);
+  }
+
+  public This bindArray(String name, Type elementType, Iterable<?> iterable) {
+    return bindByType(name, TypeFactory.parameterizedClass(Iterable.class, elementType), iterable);
   }
 
   public <C extends JdbqConfig<C>> C getConfig(Class<C> configClass) {
@@ -337,19 +314,23 @@ public abstract class SqlStatement<This extends SqlStatement<This>> extends Base
     beforeBinding();
 
     if (getArgumentBinding().isEmpty()) {
-      // Well, that wasy easy.
+      // Well, that was easy.
     } else if (getArgumentBinding().isNamed()) {
-      for (Map.Entry<String, QueryParameterValue> entry : getArgumentBinding().getNamed()
-          .entrySet()) {
+      for (Map.Entry<String, Argument> entry : getArgumentBinding().getNamed().entrySet()) {
         String parameterName = entry.getKey();
-        QueryParameterValue parameterValue = entry.getValue();
+        Argument argument = entry.getValue();
+        QueryParameterValue parameterValue = getConfig(Arguments.class).map(argument.getType(),
+            argument.getValue(), ctx.getConfig());
+        if (parameterValue == null)
+          throw new UnableToCreateStatementException("No parameter for name " + parameterName);
         stmt.addNamedParameter(parameterName, parameterValue);
       }
     } else if (getArgumentBinding().isPositional()) {
       for (int parameterPosition = 0; parameterPosition < getArgumentBinding().getPositionals()
           .size(); parameterPosition++) {
-        QueryParameterValue parameterValue =
-            getArgumentBinding().getPositionals().get(parameterPosition);
+        Argument argument = getArgumentBinding().getPositionals().get(parameterPosition);
+        QueryParameterValue parameterValue = getConfig(Arguments.class).map(argument.getType(),
+            argument.getValue(), ctx.getConfig());
         if (parameterValue == null)
           throw new UnableToCreateStatementException(
               "No parameter for position " + parameterPosition);

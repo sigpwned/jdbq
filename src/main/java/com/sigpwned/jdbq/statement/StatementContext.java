@@ -45,6 +45,8 @@ public class StatementContext implements Closeable {
   public StatementContext(ConfigRegistry config) {
     this.config = requireNonNull(config);
     this.cleanables = new LinkedHashSet<>();
+    this.argumentBinding = new ArgumentBinding();
+    this.attributeBinding = new AttributeBinding();
   }
 
   /**

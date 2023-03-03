@@ -28,45 +28,34 @@
  * or implied. See the License for the specific language governing permissions and limitations under
  * the License.
  */
-package com.sigpwned.jdbq.collector;
+package com.sigpwned.jdbq.mapper.column;
 
-import java.lang.reflect.ParameterizedType;
-import java.lang.reflect.Type;
-import java.util.EnumSet;
-import java.util.Optional;
-import java.util.function.Function;
-import java.util.stream.Collector;
-import com.sigpwned.jdbq.generic.GenericTypes;
+import java.lang.reflect.Array;
+import java.util.List;
+import com.google.cloud.bigquery.FieldValue;
+import com.sigpwned.jdbq.statement.StatementContext;
 
-class EnumSetCollectorFactory implements CollectorFactory {
+public class ArrayColumnMapper implements ColumnMapper<Object> {
+  private final ColumnMapper<?> elementMapper;
+  private final Class<?> componentType;
 
-  @Override
-  public boolean accepts(Type containerType) {
-    // compiler ensures that elements of EnumSet<E extends Enum<E>> are always enums
-    return EnumSet.class.isAssignableFrom(GenericTypes.getErasedType(containerType))
-        && containerType instanceof ParameterizedType;
+  public ArrayColumnMapper(ColumnMapper<?> elementMapper, Class<?> componentType) {
+    this.elementMapper = elementMapper;
+    this.componentType = componentType;
   }
 
   @Override
-  public Optional<Type> elementType(Type containerType) {
-    return GenericTypes.findGenericParameter(containerType, EnumSet.class);
-  }
+  public Object map(FieldValue v, StatementContext ctx) {
+    List<FieldValue> array = v.getRepeatedValue();
 
-  @Override
-  public Collector<?, ?, ?> build(Type containerType) {
-    return build0(containerType);
-  }
+    if (array == null) {
+      return null;
+    }
 
-  // exists to give ecj a more static type to check against
-  @SuppressWarnings("unchecked")
-  private <E extends Enum<E>> Collector<E, ?, ?> build0(Type containerType) {
-    Class<E> componentType = (Class<E>) GenericTypes
-        .findGenericParameter(containerType, EnumSet.class).map(GenericTypes::getErasedType)
-        .orElseThrow(() -> new IllegalStateException("Cannot determine EnumSet element type"));
+    Object[] result = (Object[]) Array.newInstance(componentType, array.size());
+    for (int i = 0; i < array.size(); i++)
+      result[i] = elementMapper.map(array.get(i), ctx);
 
-    return Collector.of(() -> EnumSet.noneOf(componentType), EnumSet::add, (left, right) -> {
-      left.addAll(right);
-      return left;
-    }, Function.identity());
+    return result;
   }
 }

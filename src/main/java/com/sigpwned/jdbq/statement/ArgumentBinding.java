@@ -19,22 +19,22 @@
  */
 package com.sigpwned.jdbq.statement;
 
-import static java.util.Collections.unmodifiableMap;
+import java.lang.reflect.Type;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
-import com.google.cloud.bigquery.QueryParameterValue;
+import java.util.Optional;
 
 public class ArgumentBinding {
-  protected final Map<Integer, QueryParameterValue> positionals;
-  protected final Map<String, QueryParameterValue> named;
+  protected Map<Integer, Argument> positionals;
+  protected Map<String, Argument> named;
 
   public ArgumentBinding() {
-    this.positionals = new HashMap<>();
-    this.named = new HashMap<>();
+    // Intentially leave maps empty
   }
 
   public boolean isPositional() {
-    return !positionals.isEmpty();
+    return positionals != null && !positionals.isEmpty();
   }
 
   /**
@@ -43,20 +43,35 @@ public class ArgumentBinding {
    * @param position binding position
    * @param argument the argument to bind
    */
-  public void addPositional(int position, QueryParameterValue argument) {
+  public void addPositional(int position, Type type, Object value) {
     if (isNamed())
       throw new IllegalStateException("Cannot add positional argument to named binding");
-    positionals.put(position, argument);
+    if (type == null)
+      throw new NullPointerException();
+    if (positionals == null)
+      positionals = new HashMap<>();
+    positionals.put(position, new Argument() {
+      @Override
+      public Type getType() {
+        return type;
+      }
+
+      @Override
+      public Object getValue() {
+        return value;
+      }
+    });
   }
 
-  Map<Integer, QueryParameterValue> getPositionals() {
+  public Map<Integer, Argument> getPositionals() {
     if (!isPositional())
       throw new IllegalStateException("not positional");
-    return unmodifiableMap(positionals);
+    return Optional.ofNullable(positionals).map(Collections::unmodifiableMap)
+        .orElseGet(Collections::emptyMap);
   }
 
   public boolean isNamed() {
-    return !named.isEmpty();
+    return named != null && !named.isEmpty();
   }
 
   /**
@@ -65,24 +80,39 @@ public class ArgumentBinding {
    * @param name bound argument name
    * @param argument the argument to bind
    */
-  public void addNamed(String name, QueryParameterValue argument) {
+  public void addNamed(String name, Type type, Object value) {
     if (isPositional())
       throw new IllegalStateException("Cannot add named argument to positional binding");
-    named.put(name, argument);
+    if (type == null)
+      throw new NullPointerException();
+    if (named == null)
+      named = new HashMap<>();
+    named.put(name, new Argument() {
+      @Override
+      public Type getType() {
+        return type;
+      }
+
+      @Override
+      public Object getValue() {
+        return value;
+      }
+    });
   }
 
-  Map<String, QueryParameterValue> getNamed() {
+  public Map<String, Argument> getNamed() {
     if (!isNamed())
       throw new IllegalStateException("not named");
-    return unmodifiableMap(named);
+    return Optional.ofNullable(named).map(Collections::unmodifiableMap)
+        .orElseGet(Collections::emptyMap);
   }
 
   /**
    * Remove all bindings from this Binding.
    */
   public void clear() {
-    positionals.clear();
-    named.clear();
+    positionals = null;
+    named = null;
   }
 
   /**
@@ -91,7 +121,7 @@ public class ArgumentBinding {
    * @return True if there are no bindings.
    */
   public boolean isEmpty() {
-    return positionals.isEmpty() && named.isEmpty();
+    return (positionals == null || positionals.isEmpty()) && (named == null || named.isEmpty());
   }
 
   @Override

@@ -55,14 +55,14 @@ public class Jdbq {
   /**
    * @return the client
    */
-  BigQuery getClient() {
+  public BigQuery getClient() {
     return client;
   }
 
   /**
    * @return the config
    */
-  ConfigRegistry getConfig() {
+  public ConfigRegistry getConfig() {
     return config;
   }
 }

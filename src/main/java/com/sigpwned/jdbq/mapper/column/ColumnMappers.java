@@ -24,21 +24,19 @@ import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
-import org.jdbi.v3.core.array.SqlArrayMapperFactory;
-import org.jdbi.v3.core.enums.internal.EnumMapperFactory;
-import org.jdbi.v3.core.mapper.BoxedMapperFactory;
-import org.jdbi.v3.core.mapper.EssentialsMapperFactory;
-import org.jdbi.v3.core.mapper.InternetMapperFactory;
-import org.jdbi.v3.core.mapper.JavaTimeMapperFactory;
-import org.jdbi.v3.core.mapper.NVarcharMapper;
-import org.jdbi.v3.core.mapper.OptionalMapperFactory;
-import org.jdbi.v3.core.mapper.PrimitiveMapperFactory;
-import org.jdbi.v3.core.mapper.SqlTimeMapperFactory;
 import com.sigpwned.jdbq.config.ConfigRegistry;
 import com.sigpwned.jdbq.config.JdbqConfig;
 import com.sigpwned.jdbq.generic.GenericType;
 import com.sigpwned.jdbq.generic.GenericTypes;
 import com.sigpwned.jdbq.internal.Optionals;
+import com.sigpwned.jdbq.mapper.column.factory.ArrayMapperFactory;
+import com.sigpwned.jdbq.mapper.column.factory.BoxedMapperFactory;
+import com.sigpwned.jdbq.mapper.column.factory.EnumMapperFactory;
+import com.sigpwned.jdbq.mapper.column.factory.EssentialsMapperFactory;
+import com.sigpwned.jdbq.mapper.column.factory.InternetMapperFactory;
+import com.sigpwned.jdbq.mapper.column.factory.JavaTimeMapperFactory;
+import com.sigpwned.jdbq.mapper.column.factory.OptionalMapperFactory;
+import com.sigpwned.jdbq.mapper.column.factory.PrimitiveMapperFactory;
 import com.sigpwned.jdbq.mapper.row.RowMapper;
 
 /**
@@ -53,16 +51,14 @@ public class ColumnMappers implements JdbqConfig<ColumnMappers> {
   private ConfigRegistry registry;
 
   public ColumnMappers() {
-    register(new SqlArrayMapperFactory());
     register(new JavaTimeMapperFactory());
-    register(new SqlTimeMapperFactory());
     register(new InternetMapperFactory());
     register(new EssentialsMapperFactory());
     register(new BoxedMapperFactory());
     register(new PrimitiveMapperFactory());
     register(new OptionalMapperFactory());
     register(new EnumMapperFactory());
-    register(new NVarcharMapper());
+    register(new ArrayMapperFactory());
   }
 
   private ColumnMappers(ColumnMappers that) {
