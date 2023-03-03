@@ -20,7 +20,6 @@
 package com.sigpwned.jdbq;
 
 import static java.util.Objects.requireNonNull;
-import java.io.IOException;
 import com.google.cloud.bigquery.BigQuery;
 import com.sigpwned.jdbq.config.ConfigRegistry;
 import com.sigpwned.jdbq.statement.Query;
@@ -57,7 +56,7 @@ public class Handle implements AutoCloseable {
   }
 
   @Override
-  public void close() throws IOException {
+  public void close() {
     // NOP
   }
 }
