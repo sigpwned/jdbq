@@ -99,6 +99,52 @@ Colloquially, the query computes the top 10 SKUs with the most sales in Q1 2023.
 
 In this example, we see our first `RowMapper`, which is custom code used to map a SQL query result row to a Java bean. In this case, each row is mapped to a `SkuSales` object.
 
+### QueryFragment
+
+JDBQ does have one important innovation over the rote JDBI feature set: the `QueryFragment`. A `QueryFragment` allows users to bundle SQL along with attributes and arguments for use in a query, which may contain other `QueryFragment` instances, and so on. For example:
+
+    Jdbq jdbq=createJdbq();
+    jdbq.get(SqlStatements.class).setTemplateEngine(new QueryFragmentTemplateEngine());
+    
+    record SkuSales(String sku, long quantity) {}
+    
+    jdbq.getConfig(RowMappers.class).register(new RowMapper<SkuSales>() {
+        @Override
+        public SkuSales map(FieldValueList fvs, StatementContext ctx) {
+            String sku=fvs.get("sku").getStringValue();
+            long quantity=fvs.get("quantity").getLongValue();
+            return new SkuSales(sku, quantity);
+        }
+    });
+    
+    QueryFragment buyerPredicate;
+    if(filterToBuyer != null) {
+        buyerPredicate = new QueryPredicate("buyer=:buyer").bind("buyer", filterToBuyer);
+    }
+    else {
+        buyerPredicate = new QueryPredicate("TRUE");
+    }
+
+    List<SkuSales> sales=jdbq.createQuery("""
+            SELECT
+                sku AS sku,
+                SUM(quantity) AS quantity
+            FROM sales
+            WHERE timestamp BETWEEN :since AND :until
+                AND (<BUYER>)
+            GROUP BY 1
+            ORDER BY 2 DESC
+            LIMIT 10""")
+        .define("BUYER", buyerPredicate)
+        .bind("since", LocalDate.of(2023, 1, 1))
+        .bind("until", LocalDate.of(2023, 3, 31))
+        .mapTo(SkuSales.class)
+        .list();
+
+Colloquially, the query computes the top 10 SKUs with the most sales in Q1 2023 from the given optional buyer.
+
+This feature allows users to divide and conquer query generate, as well as to reuse components of query generation more freely. This style of query generation is sometimes referred to as the [specification pattern](https://en.wikipedia.org/wiki/Specification_pattern).
+
 ## Extensibility
 
 The following key features have been brought over from JDBI:
