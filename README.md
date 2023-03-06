@@ -157,6 +157,7 @@ The following key features have been brought over from JDBI:
 * Row mappers
 * Query customizers
 * Pluggable template engines
+* Custom arguments
 
 ## FAQ
 
