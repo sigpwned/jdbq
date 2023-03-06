@@ -141,7 +141,9 @@ JDBQ does have one important innovation over the rote JDBI feature set: the `Que
         .mapTo(SkuSales.class)
         .list();
 
-This query computes the top 10 SKUs with the most sales in Q1 2023 from the given optional buyer. Note that the buyer predicate includes an argument. Using a `QueryFragment`, the entire predicate is self-contained because it supports not only SQL but also attributes and arguments, and is therefore reusable. If this were handled without `QueryFragment`, then the builder of the overall query would have to know about how the predicate works, which violates encapsulation and reduces reusability.
+This query computes the top 10 SKUs with the most sales in Q1 2023 from the given optional buyer.
+
+Note that the buyer predicate includes an argument. Using a `QueryFragment`, the entire predicate is self-contained because it supports not only SQL but also attributes and arguments, and is therefore reusable. If this were handled without `QueryFragment`, then the builder of the overall query would have to know about how the predicate works, which violates encapsulation and reduces reusability.
 
 The `QueryFragment` feature allows users to divide and conquer query generation, as well as to reuse components of query generation more freely. This style of query generation is sometimes referred to as the [specification pattern](https://en.wikipedia.org/wiki/Specification_pattern).
 
