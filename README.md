@@ -1,6 +1,6 @@
 # jdbq [![tests](https://github.com/sigpwned/jdbq/actions/workflows/tests.yml/badge.svg)](https://github.com/sigpwned/jdbq/actions/workflows/tests.yml)  ![Maven Central](https://img.shields.io/maven-central/v/com.sigpwned/jdbq)
 
-A [JDBI](https://jdbi.org/)-inspired database access layer for Google BigQuery for Java 8+
+A [JDBI](https://jdbi.org/)-inspired database access layer for [Google BigQuery](https://cloud.google.com/bigquery) for Java 8+
 
 ## Motivation
 
@@ -60,7 +60,7 @@ Consider the following query:
         .mapTo(Long.class)
         .one();
         
-Colloquially, the query computes how many units of SKU `abcd1234` were sold in Q1 2023.
+This query computes how many units of SKU `abcd1234` were sold in Q1 2023.
 
 In this example, we see that we have named parameters in the query (e.g., `:sku`) with values provided using the `bind` method later. Next, the result is mapped to `Long` values, and then exactly one value is retrieved, otherwise an exception is thrown. This works because there are built-in `ColumnMapper` classes for most builtin types, such as `Integer`, `Long`, `Double`, `String`, `LocalDate`, and so on.
 
@@ -95,9 +95,9 @@ Now consider this code:
         .mapTo(SkuSales.class)
         .list();
 
-Colloquially, the query computes the top 10 SKUs with the most sales in Q1 2023.
+This query computes the top 10 SKUs with the most sales in Q1 2023.
 
-In this example, we see our first `RowMapper`, which is custom code used to map a SQL query result row to a Java bean. In this case, each row is mapped to a `SkuSales` object.
+In this example, we see our first `RowMapper`, which is custom code used to map a SQL query result row to a Java bean. In this case, each row is mapped to a `SkuSales` object. Note that the registering the `RowMapper` for the `SkuSales` class during initialization effectively decouples the serialization of records from business logic.
 
 ### QueryFragment
 
@@ -141,9 +141,11 @@ JDBQ does have one important innovation over the rote JDBI feature set: the `Que
         .mapTo(SkuSales.class)
         .list();
 
-Colloquially, the query computes the top 10 SKUs with the most sales in Q1 2023 from the given optional buyer.
+This query computes the top 10 SKUs with the most sales in Q1 2023 from the given optional buyer. Note that the buyer predicate includes an argument. Using a `QueryFragment`, the entire predicate is self-contained because it supports not only SQL but also attributes and arguments, and is therefore reusable. If this were handled without `QueryFragment`, then the builder of the overall query would have to know about how the predicate works, which violates encapsulation and reduces reusability.
 
-This feature allows users to divide and conquer query generate, as well as to reuse components of query generation more freely. This style of query generation is sometimes referred to as the [specification pattern](https://en.wikipedia.org/wiki/Specification_pattern).
+The `QueryFragment` feature allows users to divide and conquer query generation, as well as to reuse components of query generation more freely. This style of query generation is sometimes referred to as the [specification pattern](https://en.wikipedia.org/wiki/Specification_pattern).
+
+Each `QueryFragment` has its own logical "namespace," which means that users don't have to worry about attribute or argument name overlap between `QueryFragment` instances, even when used in the same query.
 
 ## Extensibility
 
@@ -162,4 +164,4 @@ That is a fine option, and may work for many businesses. However, not all BigQue
 
 ## Roadmap
 
-More features, such as query annotations, will be added to the library if there is demand.
+More features, such as [JDBI-style annotated methods](https://jdbi.org/#_annotated_methods), may be added to the library if there is demand.
