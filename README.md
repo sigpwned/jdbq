@@ -1,6 +1,6 @@
 # jdbq [![tests](https://github.com/sigpwned/jdbq/actions/workflows/tests.yml/badge.svg)](https://github.com/sigpwned/jdbq/actions/workflows/tests.yml)  ![Maven Central](https://img.shields.io/maven-central/v/com.sigpwned/jdbq)
 
-A [JDBI](https://jdbi.org/)-inspired database access layer for [Google BigQuery](https://cloud.google.com/bigquery) for Java 8+
+A [JDBI](https://jdbi.org/)-inspired database access framework for Java 8+ and [Google BigQuery](https://cloud.google.com/bigquery).
 
 ## Motivation
 
