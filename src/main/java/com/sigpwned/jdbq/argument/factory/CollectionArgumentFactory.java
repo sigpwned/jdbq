@@ -19,12 +19,13 @@
  */
 package com.sigpwned.jdbq.argument.factory;
 
-import java.lang.reflect.Array;
 import java.lang.reflect.Type;
-import java.util.Collection;
+import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Optional;
 import com.google.cloud.bigquery.QueryParameterValue;
+import com.google.cloud.bigquery.StandardSQLTypeName;
 import com.sigpwned.jdbq.argument.ArgumentFactory;
 import com.sigpwned.jdbq.argument.Arguments;
 import com.sigpwned.jdbq.config.ConfigRegistry;
@@ -38,19 +39,26 @@ public class CollectionArgumentFactory implements ArgumentFactory {
     QueryParameterValue result;
     if (value == null) {
       result = null;
-    } else if (GenericTypes.isSuperType(Collection.class, type)) {
-      Collection<?> collection = (Collection<?>) value;
-      Type elementType = GenericTypes.findGenericParameter(type, Collection.class)
+    } else if (GenericTypes.isSuperType(Iterable.class, type)) {
+      Iterable<?> collection = (Iterable<?>) value;
+      Type elementType = GenericTypes.findGenericParameter(type, Iterable.class)
           .orElseThrow(() -> new UnableToCreateStatementException(
               "Collection has unresolvable element type " + type));
+
+      // TODO Does the collection case need to match the array case for all inputs?
+      // TODO If the array is empty, do we need to map this to a SQLStandardTypeName?
+      @SuppressWarnings("unused")
       Class elementClass = GenericTypes.getErasedType(elementType);
 
       Iterator<?> iterator = collection.iterator();
-      Object[] array = (Object[]) Array.newInstance(elementClass, collection.size());
-      for (int i = 0; i < array.length; i++)
-        array[i] = config.get(Arguments.class).map(elementType, iterator.next(), config);
+      List<QueryParameterValue> array = new ArrayList<>();
+      while (iterator.hasNext())
+        array.add(config.get(Arguments.class).map(elementType, iterator.next(), config));
 
-      result = QueryParameterValue.array(array, elementClass);
+      // TODO Does this handle array of struct properly?
+      result = QueryParameterValue.newBuilder().setType(StandardSQLTypeName.ARRAY)
+          .setArrayType(array.isEmpty() ? null : array.get(0).getType()).setArrayValues(array)
+          .build();
     } else {
       Class arrayClass = GenericTypes.getErasedType(type);
       if (arrayClass.getComponentType() == null)

@@ -25,6 +25,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
 import com.google.cloud.bigquery.QueryParameterValue;
 import com.sigpwned.jdbq.argument.factory.BoxedArgumentFactory;
 import com.sigpwned.jdbq.argument.factory.CharSequenceArgumentFactory;
+import com.sigpwned.jdbq.argument.factory.CollectionArgumentFactory;
 import com.sigpwned.jdbq.argument.factory.EnumArgumentFactory;
 import com.sigpwned.jdbq.argument.factory.EssentialsArgumentFactory;
 import com.sigpwned.jdbq.argument.factory.InternetArgumentFactory;
@@ -51,6 +52,7 @@ public class Arguments implements JdbqConfig<Arguments> {
     addArgumentFactory(new EssentialsArgumentFactory());
     addArgumentFactory(new JavaTimeZoneIdArgumentFactory());
     addArgumentFactory(new EnumArgumentFactory());
+    addArgumentFactory(new CollectionArgumentFactory());
     addArgumentFactory(new OptionalArgumentFactory());
   }
 
