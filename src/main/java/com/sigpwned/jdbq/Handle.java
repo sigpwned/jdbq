@@ -23,6 +23,7 @@ import static java.util.Objects.requireNonNull;
 import com.google.cloud.bigquery.BigQuery;
 import com.sigpwned.jdbq.config.ConfigRegistry;
 import com.sigpwned.jdbq.statement.Query;
+import com.sigpwned.jdbq.statement.Update;
 
 public class Handle implements AutoCloseable {
   private final Jdbq jdbq;
@@ -53,6 +54,10 @@ public class Handle implements AutoCloseable {
 
   public Query createQuery(String sql) {
     return new Query(this, sql);
+  }
+
+  public Update createUpdate(String sql) {
+    return new Update(this, sql);
   }
 
   @Override

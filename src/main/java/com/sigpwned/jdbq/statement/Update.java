@@ -2,7 +2,7 @@
  * =================================LICENSE_START==================================
  * jdbq
  * ====================================SECTION=====================================
- * Copyright (C) 2022 Andy Boothe
+ * Copyright (C) 2022 - 2023 Andy Boothe
  * ====================================SECTION=====================================
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,32 +19,33 @@
  */
 package com.sigpwned.jdbq.statement;
 
-import java.io.InterruptedIOException;
-import java.io.UncheckedIOException;
 import com.google.cloud.bigquery.Job;
+import com.google.cloud.bigquery.JobStatistics;
 import com.sigpwned.jdbq.Handle;
-import com.sigpwned.jdbq.result.FieldValueListsResultSet;
-import com.sigpwned.jdbq.result.ResultSet;
-import com.sigpwned.jdbq.result.ResultSetScanner;
 
-public class Query extends SqlStatement<Query> implements ResultBearing {
-  public Query(Handle handle, String sql) {
+/**
+ * Used for INSERT, UPDATE, and DELETE statements
+ */
+public class Update extends SqlStatement<Update> {
+  public Update(Handle handle, String sql) {
     super(handle, sql);
   }
 
-  @Override
-  public <R> R scanResultSet(ResultSetScanner<R> mapper) {
-    return mapper.scanResultSet(this::execute, getContext());
+  public void one() {
+    long count = execute();
+    if (count != 1L) {
+      throw new IllegalStateException("Expected 1 modified row, got " + count);
+    }
   }
 
-  private ResultSet execute() {
+  /**
+   * Executes the statement, returning the update count.
+   *
+   * @return the number of rows modified
+   */
+  public long execute() {
     Job job = internalExecute();
-    try {
-      return new FieldValueListsResultSet(job.getQueryResults().getValues());
-    } catch (InterruptedException e) {
-      // This should never happen, since internalExecute() waits for job completion.
-      Thread.currentThread().interrupt();
-      throw new UncheckedIOException(new InterruptedIOException());
-    }
+    JobStatistics.QueryStatistics statistics = job.getStatistics();
+    return statistics.getNumDmlAffectedRows();
   }
 }

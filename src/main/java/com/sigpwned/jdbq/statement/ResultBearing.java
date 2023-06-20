@@ -23,11 +23,11 @@ import java.lang.reflect.Type;
 import java.util.function.Supplier;
 import org.apache.http.client.methods.Configurable;
 import com.sigpwned.jdbq.generic.GenericType;
+import com.sigpwned.jdbq.mapper.Mappers;
 import com.sigpwned.jdbq.mapper.NoSuchMapperException;
 import com.sigpwned.jdbq.mapper.column.ColumnMapper;
 import com.sigpwned.jdbq.mapper.column.SingleColumnMapper;
 import com.sigpwned.jdbq.mapper.row.RowMapper;
-import com.sigpwned.jdbq.mapper.row.RowMappers;
 import com.sigpwned.jdbq.result.ResultIterable;
 import com.sigpwned.jdbq.result.ResultSet;
 import com.sigpwned.jdbq.result.ResultSetScanner;
@@ -105,7 +105,7 @@ public interface ResultBearing {
    */
   default ResultIterable<?> mapTo(Type type) {
     return scanResultSet((supplier, ctx) -> {
-      RowMapper<?> mapper = ctx.getConfig(RowMappers.class).findFor(type)
+      RowMapper<?> mapper = ctx.getConfig(Mappers.class).findFor(type)
           .orElseThrow(() -> new NoSuchMapperException("No mapper registered for type " + type));
       return ResultIterable.of(supplier, mapper, ctx);
     });

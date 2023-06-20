@@ -37,6 +37,7 @@ import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 import org.apache.http.client.methods.Configurable;
 import com.sigpwned.jdbq.argument.Arguments;
+import com.sigpwned.jdbq.mapper.Mappers;
 import com.sigpwned.jdbq.mapper.column.ColumnMappers;
 import com.sigpwned.jdbq.mapper.row.RowMappers;
 import com.sigpwned.jdbq.statement.SqlStatements;
@@ -58,6 +59,7 @@ public final class ConfigRegistry {
     get(Arguments.class);
     get(RowMappers.class);
     get(ColumnMappers.class);
+    get(Mappers.class);
   }
 
   private ConfigRegistry(ConfigRegistry that) {

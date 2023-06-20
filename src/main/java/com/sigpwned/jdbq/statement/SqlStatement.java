@@ -30,6 +30,7 @@ import java.util.Collection;
 import java.util.Map;
 import java.util.UUID;
 import java.util.function.Consumer;
+import com.google.cloud.bigquery.Job;
 import com.google.cloud.bigquery.JobInfo;
 import com.google.cloud.bigquery.QueryJobConfiguration;
 import com.google.cloud.bigquery.QueryParameterValue;
@@ -37,8 +38,6 @@ import com.sigpwned.jdbq.Handle;
 import com.sigpwned.jdbq.argument.Arguments;
 import com.sigpwned.jdbq.config.JdbqConfig;
 import com.sigpwned.jdbq.parser.ParsedSql;
-import com.sigpwned.jdbq.result.FieldValueListsResultSet;
-import com.sigpwned.jdbq.result.ResultSet;
 import com.sigpwned.jdbq.statement.exception.UnableToCreateStatementException;
 import com.sigpwned.jdbq.statement.exception.UnableToExecuteStatementException;
 import io.leangen.geantyref.TypeFactory;
@@ -296,7 +295,11 @@ public abstract class SqlStatement<This extends SqlStatement<This>> extends Base
     return getContext().getConfig(configClass);
   }
 
-  ResultSet internalExecute() {
+  /**
+   * Returns the completed results of the query. If returned, the job completed successfully. No
+   * further method calls should throw and InterruptedException.
+   */
+  Job internalExecute() {
     final StatementContext ctx = getContext();
 
     beforeTemplating();
@@ -342,10 +345,9 @@ public abstract class SqlStatement<This extends SqlStatement<This>> extends Base
 
     beforeExecution();
 
-    ResultSet result;
+    Job result;
     try {
-      result = new FieldValueListsResultSet(getHandle().getClient().create(JobInfo.of(stmt.build()))
-          .waitFor().getQueryResults().getValues());
+      result = getHandle().getClient().create(JobInfo.of(stmt.build())).waitFor();
     } catch (InterruptedException e) {
       throw new UnableToExecuteStatementException(e, ctx);
     }
@@ -354,6 +356,8 @@ public abstract class SqlStatement<This extends SqlStatement<This>> extends Base
 
     return result;
   }
+
+
 
   private QueryJobConfiguration.Builder createStatement(final StatementContext ctx,
       ParsedSql parsedSql) {

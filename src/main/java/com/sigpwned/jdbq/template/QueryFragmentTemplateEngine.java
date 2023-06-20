@@ -102,7 +102,7 @@ public class QueryFragmentTemplateEngine implements TemplateEngine {
       }
       t = lexer.nextToken();
     }
-    
+
     ctx.getConfig(SqlStatements.class).addCustomizer(new StatementCustomizer() {
       @Override
       public void beforeBinding(Builder stmt, StatementContext ctx) {
@@ -126,7 +126,7 @@ public class QueryFragmentTemplateEngine implements TemplateEngine {
         }
       }
     });
-    
+
     return buf.toString();
   }
 
