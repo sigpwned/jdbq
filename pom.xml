@@ -3,7 +3,7 @@
 
     <groupId>com.sigpwned</groupId>
     <artifactId>jdbq</artifactId>
-    <version>0.0.3</version>
+    <version>0.0.4-SNAPSHOT</version>
     <name>jdbq</name>
     <inceptionYear>2022</inceptionYear>
     <description>JDBI-inspired database access layer for Google BigQuery for Java 8+</description>
@@ -19,7 +19,7 @@
         <connection>scm:git:ssh://git@github.com/sigpwned/jdbq.git</connection>
         <developerConnection>scm:git:ssh://git@github.com/sigpwned/jdbq.git</developerConnection>
         <url>https://github.com/sigpwned/jdbq/tree/main</url>
-        <tag>v0.0.3</tag>
+        <tag>v70.1.0</tag>
     </scm>
 
     <licenses>
