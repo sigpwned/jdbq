@@ -133,19 +133,27 @@ public final class ConfigRegistry {
     }
 
     if (defaultConstructor != null) {
+      C result;
+
       try {
-        return defaultConstructor.newInstance();
+        result = defaultConstructor.newInstance();
       } catch (InstantiationException e) {
         throw new IllegalArgumentException(
             "Config class " + configClass.getName() + " cannot be instantiated");
       } catch (IllegalAccessException e) {
         // The constructor isn't visible. That might be OK. Let it go.
+        result = null;
       } catch (IllegalArgumentException e) {
         // We just retrieved the constructor. This should be impossible.
         throw new AssertionError(e);
       } catch (InvocationTargetException e) {
         throw new ConfigException(
             "Config class " + configClass.getName() + " failed to instantiate", e.getCause());
+      }
+
+      if (result != null) {
+        result.setRegistry(this);
+        return result;
       }
     }
 
