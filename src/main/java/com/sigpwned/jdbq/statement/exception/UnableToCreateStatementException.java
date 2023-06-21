@@ -36,7 +36,7 @@ import com.sigpwned.jdbq.statement.StatementContext;
 import com.sigpwned.jdbq.statement.StatementException;
 
 /**
- * Thrown when {@code Jdbi} couldn't create a statement.
+ * Thrown when {@code Jdbq} couldn't create a statement.
  */
 public class UnableToCreateStatementException extends StatementException {
     private static final long serialVersionUID = 1L;

@@ -20,6 +20,8 @@
 package com.sigpwned.jdbq.statement;
 
 import static java.util.Objects.requireNonNull;
+import java.io.InterruptedIOException;
+import java.io.UncheckedIOException;
 import java.lang.reflect.Type;
 import java.net.URI;
 import java.net.URL;
@@ -30,6 +32,7 @@ import java.util.Collection;
 import java.util.Map;
 import java.util.UUID;
 import java.util.function.Consumer;
+import com.google.cloud.bigquery.BigQueryException;
 import com.google.cloud.bigquery.Job;
 import com.google.cloud.bigquery.JobInfo;
 import com.google.cloud.bigquery.QueryJobConfiguration;
@@ -38,8 +41,10 @@ import com.sigpwned.jdbq.Handle;
 import com.sigpwned.jdbq.argument.Arguments;
 import com.sigpwned.jdbq.config.JdbqConfig;
 import com.sigpwned.jdbq.parser.ParsedSql;
+import com.sigpwned.jdbq.statement.exception.UnableToCleanupStatementException;
 import com.sigpwned.jdbq.statement.exception.UnableToCreateStatementException;
 import com.sigpwned.jdbq.statement.exception.UnableToExecuteStatementException;
+import com.sigpwned.jdbq.statement.exception.UnableToSetupStatementException;
 import io.leangen.geantyref.TypeFactory;
 
 public abstract class SqlStatement<This extends SqlStatement<This>> extends BaseStatement<This> {
@@ -298,6 +303,10 @@ public abstract class SqlStatement<This extends SqlStatement<This>> extends Base
   /**
    * Returns the completed results of the query. If returned, the job completed successfully. No
    * further method calls should throw and InterruptedException.
+   * 
+   * @throws UnableToExecuteStatementException if a BigQuery exception is thrown
+   * @throws UncheckedIOException with cause InterrupedIOException in case interrupted. The current
+   *         thread is re-interrupted first.
    */
   Job internalExecute() {
     final StatementContext ctx = getContext();
@@ -349,6 +358,11 @@ public abstract class SqlStatement<This extends SqlStatement<This>> extends Base
     try {
       result = getHandle().getClient().create(JobInfo.of(stmt.build())).waitFor();
     } catch (InterruptedException e) {
+      // This is a titch awkward. We don't want to make every caller handle InterruptedException,
+      // but we do need to throw something...
+      Thread.currentThread().interrupt();
+      throw new UncheckedIOException(new InterruptedIOException());
+    } catch (BigQueryException e) {
       throw new UnableToExecuteStatementException(e, ctx);
     }
 
@@ -356,8 +370,6 @@ public abstract class SqlStatement<This extends SqlStatement<This>> extends Base
 
     return result;
   }
-
-
 
   private QueryJobConfiguration.Builder createStatement(final StatementContext ctx,
       ParsedSql parsedSql) {
@@ -380,32 +392,42 @@ public abstract class SqlStatement<This extends SqlStatement<This>> extends Base
     return this.getConfig(SqlStatements.class).getCustomizers();
   }
 
-  @SuppressWarnings("resource")
   private void callCustomizers(Consumer<StatementCustomizer> invocation) {
     for (StatementCustomizer customizer : getCustomizers()) {
-      try {
-        invocation.accept(customizer);
-      } catch (Exception e) {
-        throw new UnableToExecuteStatementException("Exception thrown in statement customization",
-            e, getContext());
-      }
+      invocation.accept(customizer);
     }
   }
 
   private void beforeTemplating() {
-    callCustomizers(c -> c.beforeTemplating(stmt, getContext()));
+    try {
+      callCustomizers(c -> c.beforeTemplating(stmt, getContext()));
+    } catch (Exception e) {
+      throw new UnableToSetupStatementException(e, getContext());
+    }
   }
 
   private void beforeBinding() {
-    callCustomizers(c -> c.beforeBinding(stmt, getContext()));
+    try {
+      callCustomizers(c -> c.beforeBinding(stmt, getContext()));
+    } catch (Exception e) {
+      throw new UnableToSetupStatementException(e, getContext());
+    }
   }
 
   private void beforeExecution() {
-    callCustomizers(c -> c.beforeExecution(stmt, getContext()));
+    try {
+      callCustomizers(c -> c.beforeExecution(stmt, getContext()));
+    } catch (Exception e) {
+      throw new UnableToSetupStatementException(e, getContext());
+    }
   }
 
   private void afterExecution() {
-    callCustomizers(c -> c.afterExecution(stmt, getContext()));
+    try {
+      callCustomizers(c -> c.afterExecution(stmt, getContext()));
+    } catch (Exception e) {
+      throw new UnableToCleanupStatementException(e, getContext());
+    }
   }
 
   private ArgumentBinding getArgumentBinding() {

@@ -74,6 +74,7 @@ public class QueryFragmentTemplateEngine implements TemplateEngine {
           break;
         case NAMED_PARAM: {
           String text = t.getText();
+          @SuppressWarnings("unused")
           String marker = text.substring(0, 1);
           String key = text.substring(1, text.length());
           buf.append("@").append(key);
@@ -146,6 +147,7 @@ public class QueryFragmentTemplateEngine implements TemplateEngine {
           break;
         case NAMED_PARAM: {
           String text = t.getText();
+          @SuppressWarnings("unused")
           String marker = text.substring(0, 1);
           String key = text.substring(1, text.length());
           buf.append("@").append(prefix).append("_").append(key);

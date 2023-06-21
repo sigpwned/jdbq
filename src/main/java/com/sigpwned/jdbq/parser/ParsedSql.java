@@ -35,7 +35,7 @@ package com.sigpwned.jdbq.parser;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
-import com.sigpwned.jdbq.statement.exception.UnableToExecuteStatementException;
+import com.sigpwned.jdbq.statement.exception.UnableToCreateStatementException;
 
 /**
  * The SQL and parameters parsed from an SQL statement.
@@ -178,7 +178,7 @@ public final class ParsedSql {
          */
         public ParsedSql build() {
             if (positional && named) {
-                throw new UnableToExecuteStatementException(
+                throw new UnableToCreateStatementException(
                         "Cannot mix named and positional parameters in a SQL statement: " + parameterNames);
             }
 

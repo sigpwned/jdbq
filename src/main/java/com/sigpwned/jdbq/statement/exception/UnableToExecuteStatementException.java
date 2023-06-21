@@ -32,6 +32,7 @@
  */
 package com.sigpwned.jdbq.statement.exception;
 
+import com.google.cloud.bigquery.BigQueryException;
 import com.sigpwned.jdbq.statement.StatementContext;
 import com.sigpwned.jdbq.statement.StatementException;
 
@@ -41,19 +42,12 @@ import com.sigpwned.jdbq.statement.StatementException;
 public class UnableToExecuteStatementException extends StatementException {
     private static final long serialVersionUID = 1L;
 
-    public UnableToExecuteStatementException(Exception e, StatementContext ctx) {
+    public UnableToExecuteStatementException(BigQueryException e, StatementContext ctx) {
         super(e, ctx);
     }
 
-    public UnableToExecuteStatementException(String message) {
-        super(message);
-    }
-
-    public UnableToExecuteStatementException(String message, StatementContext ctx) {
-        super(message, ctx);
-    }
-
-    public UnableToExecuteStatementException(String message, Throwable throwable, StatementContext ctx) {
-        super(message, throwable, ctx);
+    @Override
+    public synchronized BigQueryException getCause() {
+      return (BigQueryException) super.getCause();
     }
 }
