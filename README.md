@@ -99,6 +99,20 @@ This query computes the top 10 SKUs with the most sales in Q1 2023.
 
 In this example, we see our first `RowMapper`, which is custom code used to map a SQL query result row to a Java bean. In this case, each row is mapped to a `SkuSales` object. Note that the registering the `RowMapper` for the `SkuSales` class during initialization effectively decouples the serialization of records from business logic.
 
+### DML
+
+The library also supports [DML operations](https://cloud.google.com/bigquery/docs/reference/standard-sql/dml-syntax).
+
+    Jdbq jdbq=createJdbq();
+
+    long deleted=jdbq.createUpdate("""
+            DELETE FROM sales
+            WHERE sku=:sku AND quantity=0""")
+        .bind("sku", "1234")
+        .execute();
+
+This query deletes all sales records with sku `1234` and quantity `0`.
+
 ### QueryFragment
 
 JDBQ does have one important innovation over the rote JDBI feature set: the `QueryFragment`. A `QueryFragment` allows users to bundle SQL along with attributes and arguments for use in a query, which may contain other `QueryFragment` instances, and so on. For example:
