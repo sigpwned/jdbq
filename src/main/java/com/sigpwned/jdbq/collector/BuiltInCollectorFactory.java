@@ -112,7 +112,6 @@ public class BuiltInCollectorFactory implements CollectorFactory {
      * @deprecated Use {@link OptionalCollectors#toOptional()} instead.
      */
     @Deprecated
-    @SuppressWarnings("InlineMeSuggester")
     public static <T> Collector<T, ?, Optional<T>> toOptional() {
         return OptionalCollectors.toOptional();
     }

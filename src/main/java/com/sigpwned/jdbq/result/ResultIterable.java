@@ -31,7 +31,7 @@
 package com.sigpwned.jdbq.result;
 
 import static java.util.Spliterators.spliteratorUnknownSize;
-import static java.util.stream.Collectors.toUnmodifiableList;
+import static java.util.stream.Collectors.toList;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -254,7 +254,7 @@ public interface ResultIterable<T> extends Iterable<T> {
    * @return results in a {@link List}.
    */
   default List<T> list() {
-    return stream().collect(toUnmodifiableList());
+    return stream().collect(toList());
   }
 
   /**
