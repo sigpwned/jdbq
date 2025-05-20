@@ -1,4 +1,4 @@
-# jdbq [![tests](https://github.com/sigpwned/jdbq/actions/workflows/tests.yml/badge.svg)](https://github.com/sigpwned/jdbq/actions/workflows/tests.yml)  ![Maven Central](https://img.shields.io/maven-central/v/com.sigpwned/jdbq)
+# jdbq [![tests](https://github.com/sigpwned/jdbq/actions/workflows/tests.yml/badge.svg)](https://github.com/sigpwned/jdbq/actions/workflows/tests.yml)  ![Maven Central](https://img.shields.io/maven-central/v/com.sigpwned/jdbq) [![javadoc](https://javadoc.io/badge2/com.sigpwned/jdbq/javadoc.svg)](https://javadoc.io/doc/com.sigpwned/jdbq)
 
 A [JDBI](https://jdbi.org/)-inspired database access framework for Java 8+ and [Google BigQuery](https://cloud.google.com/bigquery).
 
