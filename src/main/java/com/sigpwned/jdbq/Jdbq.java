@@ -49,7 +49,7 @@ public class Jdbq {
   }
 
   public Handle open() {
-    return new Handle(this, getConfig());
+    return new Handle(this, getConfig().createCopy());
   }
 
   /**

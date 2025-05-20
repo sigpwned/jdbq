@@ -30,7 +30,7 @@ public abstract class BaseStatement<This extends BaseStatement<This>> implements
 
   BaseStatement(Handle handle) {
     this.handle = requireNonNull(handle);
-    this.context = new StatementContext(handle.getConfig());
+    this.context = new StatementContext(handle.getConfig().createCopy());
   }
 
   public Handle getHandle() {
