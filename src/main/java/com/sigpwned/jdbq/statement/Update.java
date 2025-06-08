@@ -47,6 +47,7 @@ public class Update extends SqlStatement<Update> {
   public long execute() {
     Job job = internalExecute();
     JobStatistics.QueryStatistics statistics = job.getStatistics();
+    // Return 0 if statistics.getNumDmlAffectedRows() is null to prevent a NullPointerException (NPE)
     return Optional.ofNullable(statistics.getNumDmlAffectedRows()).orElse(0L);
   }
 }
