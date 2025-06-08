@@ -64,7 +64,7 @@ public final class ConfigRegistry {
 
   private ConfigRegistry(ConfigRegistry that) {
     this.configs = new ConcurrentHashMap<>();
-    for (Map.Entry<Class<? extends JdbqConfig<?>>, JdbqConfig<?>> e : configs.entrySet())
+    for (Map.Entry<Class<? extends JdbqConfig<?>>, JdbqConfig<?>> e : that.configs.entrySet())
       configs.put(e.getKey(), e.getValue().createCopy());
     configs.values().forEach(c -> c.setRegistry(this));
   }
