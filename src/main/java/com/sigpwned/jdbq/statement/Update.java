@@ -19,6 +19,7 @@
  */
 package com.sigpwned.jdbq.statement;
 
+import java.util.Optional;
 import com.google.cloud.bigquery.Job;
 import com.google.cloud.bigquery.JobStatistics;
 import com.sigpwned.jdbq.Handle;
@@ -46,6 +47,6 @@ public class Update extends SqlStatement<Update> {
   public long execute() {
     Job job = internalExecute();
     JobStatistics.QueryStatistics statistics = job.getStatistics();
-    return statistics.getNumDmlAffectedRows();
+    return Optional.ofNullable(statistics.getNumDmlAffectedRows()).orElse(0L);
   }
 }
