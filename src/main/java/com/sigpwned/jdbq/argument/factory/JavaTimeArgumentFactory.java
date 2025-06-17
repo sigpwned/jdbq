@@ -62,33 +62,38 @@ public class JavaTimeArgumentFactory implements ArgumentFactory {
   @Override
   public Optional<QueryParameterValue> map(Type type, Object value, ConfigRegistry config) {
     QueryParameterValue result;
-    if (value == null) {
-      result = null;
-    } else if (type.equals(Instant.class)) {
+    if (type.equals(Instant.class)) {
       Instant instant = (Instant) value;
-      result = QueryParameterValue.timestamp(INSTANT_FORMATTER.format(instant));
+      result =
+          QueryParameterValue.timestamp(instant != null ? INSTANT_FORMATTER.format(instant) : null);
     } else if (type.equals(LocalDate.class)) {
       LocalDate localDate = (LocalDate) value;
-      result = QueryParameterValue.date(DATE_FORMATTER.format(localDate));
+      result =
+          QueryParameterValue.date(localDate != null ? DATE_FORMATTER.format(localDate) : null);
     } else if (type.equals(LocalTime.class)) {
       LocalTime localTime = (LocalTime) value;
-      result = QueryParameterValue.time(TIME_FORMATTER.format(localTime));
+      result =
+          QueryParameterValue.time(localTime != null ? TIME_FORMATTER.format(localTime) : null);
     } else if (type.equals(LocalDateTime.class)) {
       LocalDateTime localDateTime = (LocalDateTime) value;
-      result = QueryParameterValue.dateTime(DATE_TIME_FORMATTER.format(localDateTime));
+      result = QueryParameterValue
+          .dateTime(localDateTime != null ? DATE_TIME_FORMATTER.format(localDateTime) : null);
     } else if (type.equals(OffsetDateTime.class)) {
       OffsetDateTime offsetDateTime = (OffsetDateTime) value;
-      result = QueryParameterValue.timestamp(INSTANT_FORMATTER.format(offsetDateTime.toInstant()));
+      result = QueryParameterValue.timestamp(
+          offsetDateTime != null ? INSTANT_FORMATTER.format(offsetDateTime.toInstant()) : null);
     } else if (type.equals(ZonedDateTime.class)) {
       ZonedDateTime zonedDateTime = (ZonedDateTime) value;
-      result = QueryParameterValue.timestamp(INSTANT_FORMATTER.format(zonedDateTime.toInstant()));
+      result = QueryParameterValue.timestamp(
+          zonedDateTime != null ? INSTANT_FORMATTER.format(zonedDateTime.toInstant()) : null);
     } else if (type.equals(Duration.class)) {
       Duration duration = (Duration) value;
-      result = QueryParameterValue
-          .int64(TimeUnit.SECONDS.toNanos(duration.getSeconds()) + duration.getNanos());
+      result = QueryParameterValue.int64(
+          duration != null ? TimeUnit.SECONDS.toNanos(duration.getSeconds()) + duration.getNanos()
+              : null);
     } else if (type.equals(Period.class)) {
       Period period = (Period) value;
-      result = QueryParameterValue.string(period.toString());
+      result = QueryParameterValue.string(period != null ? period.toString() : null);
     } else {
       result = null;
     }

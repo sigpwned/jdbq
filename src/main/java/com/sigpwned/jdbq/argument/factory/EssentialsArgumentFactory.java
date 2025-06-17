@@ -42,9 +42,7 @@ public class EssentialsArgumentFactory implements ArgumentFactory {
   @Override
   public Optional<QueryParameterValue> map(Type type, Object value, ConfigRegistry config) {
     QueryParameterValue result;
-    if (value == null) {
-      result = null;
-    } else if (type.equals(BigDecimal.class)) {
+    if (type.equals(BigDecimal.class)) {
       BigDecimal bigDecimal = (BigDecimal) value;
       result = QueryParameterValue.bigNumeric(bigDecimal);
     } else if (type.equals(byte[].class)) {
@@ -55,7 +53,7 @@ public class EssentialsArgumentFactory implements ArgumentFactory {
       result = QueryParameterValue.string(string);
     } else if (type.equals(UUID.class)) {
       UUID uuid = (UUID) value;
-      result = QueryParameterValue.string(uuid.toString());
+      result = QueryParameterValue.string(uuid != null ? uuid.toString() : null);
     } else {
       result = null;
     }

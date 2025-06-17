@@ -26,5 +26,16 @@ import com.sigpwned.jdbq.config.ConfigRegistry;
 
 @FunctionalInterface
 public interface ArgumentFactory {
+  /**
+   * Maps a value of the given type to a {@link QueryParameterValue} that can be used in a BigQuery
+   * query.
+   * 
+   * @param type The Java type of the value to map
+   * @param value The value to map, which may be {@code null}
+   * @param config The configuration registry to use for mapping, for composition
+   * @return An {@link Optional} containing the mapped {@link QueryParameterValue} if the value can
+   *         be mapped by this {@code ArgumentFactory}, or an empty {@link Optional} if the value
+   *         cannot be mapped by this {@code ArgumentFactory}.
+   */
   public Optional<QueryParameterValue> map(Type type, Object value, ConfigRegistry config);
 }

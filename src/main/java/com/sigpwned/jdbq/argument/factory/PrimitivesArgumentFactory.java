@@ -41,9 +41,7 @@ public class PrimitivesArgumentFactory implements ArgumentFactory {
   @Override
   public Optional<QueryParameterValue> map(Type type, Object value, ConfigRegistry config) {
     QueryParameterValue result;
-    if (value == null) {
-      result = null;
-    } else if (type.equals(boolean.class)) {
+    if (type.equals(boolean.class)) {
       result = QueryParameterValue.of((Boolean) value, StandardSQLTypeName.BOOL);
     } else if (type.equals(byte.class)) {
       result = QueryParameterValue.of((Byte) value, StandardSQLTypeName.INT64);

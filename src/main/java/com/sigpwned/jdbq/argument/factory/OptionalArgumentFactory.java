@@ -45,20 +45,21 @@ public class OptionalArgumentFactory implements ArgumentFactory {
   @Override
   public Optional<QueryParameterValue> map(Type type, Object value, ConfigRegistry config) {
     QueryParameterValue result;
-    if (value == null) {
-      result = null;
-    } else if (type.equals(OptionalInt.class)) {
+    if (type.equals(OptionalInt.class)) {
       OptionalInt optional = (OptionalInt) value;
-      result = QueryParameterValue.int64(optional.isPresent() ? optional.getAsInt() : null);
+      result = QueryParameterValue
+          .int64(optional != null && optional.isPresent() ? optional.getAsInt() : null);
     } else if (type.equals(OptionalLong.class)) {
       OptionalLong optional = (OptionalLong) value;
-      result = QueryParameterValue.int64(optional.isPresent() ? optional.getAsLong() : null);
+      result = QueryParameterValue
+          .int64(optional != null && optional.isPresent() ? optional.getAsLong() : null);
     } else if (type.equals(OptionalDouble.class)) {
       OptionalDouble optional = (OptionalDouble) value;
-      result = QueryParameterValue.float64(optional.isPresent() ? optional.getAsDouble() : null);
+      result = QueryParameterValue
+          .float64(optional != null && optional.isPresent() ? optional.getAsDouble() : null);
     } else if (GenericTypes.getErasedType(type).equals(Optional.class)) {
       Optional<?> optional = (Optional<?>) value;
-      if (optional.isPresent()) {
+      if (optional != null && optional.isPresent()) {
         // TODO Are we handling all the edge cases properly?
         Type parameterType = GenericTypes.findGenericParameter(type, Optional.class)
             .orElse(value != null ? value.getClass() : Object.class);

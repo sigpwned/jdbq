@@ -34,40 +34,70 @@ import com.sigpwned.jdbq.statement.exception.UnableToCreateStatementException;
 
 public class CollectionArgumentFactory implements ArgumentFactory {
   @Override
-  @SuppressWarnings({"rawtypes", "unchecked"})
+  @SuppressWarnings({"rawtypes"})
   public Optional<QueryParameterValue> map(Type type, Object value, ConfigRegistry config) {
     QueryParameterValue result;
-    if (value == null) {
-      result = null;
-    } else if (GenericTypes.isSuperType(Iterable.class, type)) {
-      Iterable<?> collection = (Iterable<?>) value;
+    if (GenericTypes.isSuperType(Iterable.class, type)) {
       Type elementType = GenericTypes.findGenericParameter(type, Iterable.class)
           .orElseThrow(() -> new UnableToCreateStatementException(
               "Collection has unresolvable element type " + type));
 
-      // TODO Does the collection case need to match the array case for all inputs?
-      // TODO If the array is empty, do we need to map this to a SQLStandardTypeName?
-      @SuppressWarnings("unused")
-      Class elementClass = GenericTypes.getErasedType(elementType);
+      Iterable<?> collection = (Iterable<?>) value;
+      if (collection != null) {
+        Iterator<?> iterator = collection.iterator();
+        List<QueryParameterValue> array = new ArrayList<>();
+        while (iterator.hasNext())
+          array.add(config.get(Arguments.class).map(elementType, iterator.next(), config));
 
-      Iterator<?> iterator = collection.iterator();
-      List<QueryParameterValue> array = new ArrayList<>();
-      while (iterator.hasNext())
-        array.add(config.get(Arguments.class).map(elementType, iterator.next(), config));
+        QueryParameterValue example;
+        if (array.isEmpty()) {
+          example = config.get(Arguments.class).map(elementType, null, config);
+        } else {
+          example = array.get(0);
+        }
 
-      // TODO Does this handle array of struct properly?
-      result = QueryParameterValue.newBuilder().setType(StandardSQLTypeName.ARRAY)
-          .setArrayType(array.isEmpty() ? null : array.get(0).getType()).setArrayValues(array)
-          .build();
+        StandardSQLTypeName exampleType = example.getType();
+
+        // TODO Does this handle array of array and array of struct properly?
+        result = QueryParameterValue.newBuilder().setType(StandardSQLTypeName.ARRAY)
+            .setArrayType(exampleType).setArrayValues(array).build();
+      } else {
+        QueryParameterValue example = config.get(Arguments.class).map(elementType, null, config);
+        StandardSQLTypeName exampleType = example.getType();
+        result = QueryParameterValue.array(null, exampleType);
+      }
     } else {
       Class arrayClass = GenericTypes.getErasedType(type);
-      if (arrayClass.getComponentType() == null)
-        throw new IllegalArgumentException("invalid array type: " + arrayClass.getName());
-      Class elementClass = arrayClass.getComponentType();
+      if (arrayClass.getComponentType() != null) {
+        Class elementClass = arrayClass.getComponentType();
 
-      Object[] array = (Object[]) value;
+        Object[] values = (Object[]) value;
+        if (values != null) {
+          List<QueryParameterValue> array = new ArrayList<>();
+          for (Object element : values)
+            array.add(config.get(Arguments.class).map(elementClass, element, config));
 
-      result = QueryParameterValue.array(array, elementClass);
+          QueryParameterValue example;
+          if (array.isEmpty()) {
+            example = config.get(Arguments.class).map(elementClass, null, config);
+          } else {
+            example = array.get(0);
+          }
+
+          StandardSQLTypeName exampleType = example.getType();
+
+          // TODO Does this handle array of array and array of struct properly?
+          result = QueryParameterValue.newBuilder().setType(StandardSQLTypeName.ARRAY)
+              .setArrayType(exampleType).setArrayValues(array).build();
+        } else {
+          QueryParameterValue example = config.get(Arguments.class).map(elementClass, null, config);
+          StandardSQLTypeName exampleType = example.getType();
+          result = QueryParameterValue.array(null, exampleType);
+        }
+      } else {
+        // We can't map this
+        result = null;
+      }
     }
     return Optional.ofNullable(result);
   }

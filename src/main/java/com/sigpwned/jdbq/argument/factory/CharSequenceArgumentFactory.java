@@ -55,7 +55,7 @@ public class CharSequenceArgumentFactory implements ArgumentFactory {
   public Optional<QueryParameterValue> map(Type type, Object value, ConfigRegistry config) {
     QueryParameterValue result;
     if (value == null) {
-      result = null;
+      result = QueryParameterValue.string(null);
     } else if (type.equals(CharSequence.class)) {
       CharSequence cs = (CharSequence) value;
       result = QueryParameterValue.string(cs.toString());

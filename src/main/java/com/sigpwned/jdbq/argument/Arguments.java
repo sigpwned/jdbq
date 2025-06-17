@@ -65,19 +65,17 @@ public class Arguments implements JdbqConfig<Arguments> {
   }
 
   public QueryParameterValue map(Type type, Object value, ConfigRegistry config) {
-    QueryParameterValue result;
-    if (value == null) {
-      result = null;
-    } else {
-      result = null;
-      for (ArgumentFactory argumentFactory : getArgumentFactories()) {
-        result = argumentFactory.map(type, value, config).orElse(null);
-        if (result != null)
-          break;
-      }
-      if (result == null)
-        throw new UnableToCreateStatementException("Failed to map argument value " + value);
+    QueryParameterValue result = null;
+
+    for (ArgumentFactory argumentFactory : getArgumentFactories()) {
+      result = argumentFactory.map(type, value, config).orElse(null);
+      if (result != null)
+        break;
     }
+
+    if (result == null)
+      throw new UnableToCreateStatementException("Failed to map argument value " + value);
+
     return result;
   }
 

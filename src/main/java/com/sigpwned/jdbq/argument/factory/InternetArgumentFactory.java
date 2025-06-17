@@ -44,20 +44,18 @@ public class InternetArgumentFactory implements ArgumentFactory {
   @Override
   public Optional<QueryParameterValue> map(Type type, Object value, ConfigRegistry config) {
     QueryParameterValue result;
-    if (value == null) {
-      result = null;
-    } else if (type.equals(Inet4Address.class)) {
+    if (type.equals(Inet4Address.class)) {
       Inet4Address address = (Inet4Address) value;
-      result = QueryParameterValue.string(address.getHostAddress());
+      result = QueryParameterValue.string(address != null ? address.getHostAddress() : null);
     } else if (type.equals(Inet6Address.class)) {
       Inet6Address address = (Inet6Address) value;
-      result = QueryParameterValue.string(address.getHostAddress());
+      result = QueryParameterValue.string(address != null ? address.getHostAddress() : null);
     } else if (type.equals(URL.class)) {
       URL url = (URL) value;
-      result = QueryParameterValue.string(url.toString());
+      result = QueryParameterValue.string(url != null ? url.toString() : null);
     } else if (type.equals(URI.class)) {
       URI uri = (URI) value;
-      result = QueryParameterValue.string(uri.toString());
+      result = QueryParameterValue.string(uri != null ? uri.toString() : null);
     } else {
       result = null;
     }

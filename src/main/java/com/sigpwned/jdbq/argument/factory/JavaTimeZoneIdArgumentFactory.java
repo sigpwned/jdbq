@@ -41,11 +41,9 @@ public class JavaTimeZoneIdArgumentFactory implements ArgumentFactory {
   @Override
   public Optional<QueryParameterValue> map(Type type, Object value, ConfigRegistry config) {
     QueryParameterValue result;
-    if (value == null) {
-      result = null;
-    } else if (type.equals(ZoneId.class)) {
+    if (type.equals(ZoneId.class)) {
       ZoneId zoneId = (ZoneId) value;
-      result = QueryParameterValue.string(zoneId.toString());
+      result = QueryParameterValue.string(zoneId != null ? zoneId.toString() : null);
     } else {
       result = null;
     }
